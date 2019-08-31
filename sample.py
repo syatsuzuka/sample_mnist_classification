@@ -2,22 +2,25 @@ from __future__ import print_function
 import numpy as np
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense, Activation
-from keras.optimizers import SGD
+from keras.layers import Dense, Dropout, Activation
+from keras.optimizers import SGD, RMSprop, Adam
 from keras.utils import np_utils
 from make_tensorboard import make_tensorboard
 import time
 
 np.random.seed(1671)
-NB_EPOCH = 50
+#NB_EPOCH = 500
+NB_EPOCH = 20
 BATCH_SIZE = 128
 VERBOSE = 1
 NB_CLASSES = 10
-OPTIMIZER = SGD()
+#OPTIMIZER = SGD()
+OPTIMIZER = Adam()
 N_HIDDEN = 128
 VALIDATION_SPLIT=0.2
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+DROPOUT = 0.3
 
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 RESHAPED = 784
 
@@ -35,8 +38,10 @@ y_test = np_utils.to_categorical(y_test, NB_CLASSES)
 model = Sequential()
 model.add(Dense(NB_CLASSES, input_shape=(RESHAPED,)))
 model.add(Activation('relu'))
+#model.add(Dropout(DROPOUT))
 model.add(Dense(N_HIDDEN))
 model.add(Activation('relu'))
+#model.add(Dropout(DROPOUT))
 model.add(Dense(NB_CLASSES))
 model.add(Activation('softmax'))
 model.summary()
