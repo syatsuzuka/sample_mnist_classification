@@ -6,9 +6,10 @@ from keras.layers import Dense, Activation
 from keras.optimizers import SGD
 from keras.utils import np_utils
 from make_tensorboard import make_tensorboard
+import time
 
 np.random.seed(1671)
-NB_EPOCH = 200
+NB_EPOCH = 50
 BATCH_SIZE = 128
 VERBOSE = 1
 NB_CLASSES = 10
@@ -17,11 +18,6 @@ N_HIDDEN = 128
 VALIDATION_SPLIT=0.2
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-print("{0}, {1}, {2}, {3}".format(x_train.shape, y_train.shape, x_test.shape, y_test.shape))
-
-np.set_printoptions(linewidth=150)
-print("{0}".format(x_train[0]))
-print("{0}".format(y_train[0]))
 
 RESHAPED = 784
 
@@ -33,13 +29,15 @@ x_test = x_test.astype('float32')
 x_train /= 255
 x_test /= 255
 
-print(x_train.shape[0], 'train samples')
-print(x_test.shape[0], 'test samples')
 y_train = np_utils.to_categorical(y_train, NB_CLASSES)
 y_test = np_utils.to_categorical(y_test, NB_CLASSES)
 
 model = Sequential()
 model.add(Dense(NB_CLASSES, input_shape=(RESHAPED,)))
+model.add(Activation('relu'))
+model.add(Dense(N_HIDDEN))
+model.add(Activation('relu'))
+model.add(Dense(NB_CLASSES))
 model.add(Activation('softmax'))
 model.summary()
 
@@ -47,9 +45,12 @@ model.compile(loss='categorical_crossentropy', optimizer=OPTIMIZER, metrics=['ac
 
 callbacks = [make_tensorboard(set_dir_name='keras_MNIST_V2')]
 
+s_time = time.time()
 model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=NB_EPOCH, callbacks=callbacks, verbose=VERBOSE, validation_split=VALIDATION_SPLIT)
-
 score = model.evaluate(x_test, y_test, verbose=VERBOSE)
+e_time = time.time()
+elapsed_time = e_time - s_time
 
 print("\nTest score:", score[0])
 print("Test accuracy:", score[1])
+print("Elapsed time:", elapsed_time/60)
